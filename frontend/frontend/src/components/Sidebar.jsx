@@ -17,7 +17,7 @@ export default function Sidebar() {
       <div className="mb-8 px-2 flex items-center gap-3">
         <img
           alt="DealClaw Logo"
-          className="w-8 h-8 rounded"
+          className="w-14 h-14 rounded mix-blend-screen"
           src={logo}
         />
         <div>
