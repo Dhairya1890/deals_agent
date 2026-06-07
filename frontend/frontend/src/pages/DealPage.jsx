@@ -9,6 +9,8 @@ import InteractionFeed from "../components/InteractionFeed";
 import InteractionInput from "../components/InteractionInput";
 import ObjectionCard from "../components/ObjectionCard";
 import AgentChat from "../components/AgentChat";
+import TaskSuggestions from "../components/TaskSuggestions";
+import TaskHistory from "../components/TaskHistory";
 
 function SectionHeader({ icon: Icon, title, count }) {
   return (
@@ -30,6 +32,7 @@ export default function DealPage() {
   const [stakeholders, setStakeholders] = useState([]);
   const [interactions, setInteractions] = useState([]);
   const [objections, setObjections] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
@@ -45,8 +48,6 @@ export default function DealPage() {
       setStakeholders(data.stakeholders || []);
       setInteractions(data.interactions || []);
       setObjections(data.objections || []);
-
-      // Auto-sync Gmail + Slack in background after deal loads
       autoSync(id);
     } catch (err) {
       console.error(err);
@@ -59,7 +60,6 @@ export default function DealPage() {
     setSyncing(true);
     try {
       const result = await syncDeal(dealId);
-      // If new items came in, reload deal data silently
       if (result.synced > 0) {
         const data = await getDeal(dealId);
         setStakeholders(data.stakeholders || []);
@@ -113,16 +113,13 @@ export default function DealPage() {
       transition={{ duration: 0.3 }}
       className="relative z-10 min-h-screen"
     >
-      {/* Background gradient */}
       <div className="fixed top-0 right-0 w-[600px] h-[400px] bg-primary-900/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="flex h-screen">
-        {/* Left panel — 70% */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ flexBasis: "70%" }}>
-          {/* Deal header */}
+        {/* Left panel — 65% */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ flexBasis: "65%" }}>
           <DealDetail deal={deal} />
 
-          {/* Auto-sync indicator */}
           {syncing && (
             <div className="flex items-center gap-2 text-xs text-zinc-500">
               <RefreshCw className="w-3 h-3 animate-spin" />
@@ -132,11 +129,7 @@ export default function DealPage() {
 
           {/* Stakeholders */}
           <section>
-            <SectionHeader
-              icon={Users}
-              title="Stakeholders"
-              count={stakeholders.length}
-            />
+            <SectionHeader icon={Users} title="Stakeholders" count={stakeholders.length} />
             {stakeholders.length > 0 ? (
               <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
                 {stakeholders.map((s, i) => (
@@ -144,37 +137,25 @@ export default function DealPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-muted">
-                No stakeholders identified yet
-              </p>
+              <p className="text-sm text-text-muted">No stakeholders identified yet</p>
             )}
           </section>
 
-          {/* Interactions */}
+          {/* Interaction Timeline */}
           <section>
-            <SectionHeader
-              icon={MessageCircle}
-              title="Interaction Timeline"
-              count={interactions.length}
-            />
+            <SectionHeader icon={MessageCircle} title="Interaction Timeline" count={interactions.length} />
             <InteractionFeed interactions={interactions} />
           </section>
 
-          {/* Interaction Input */}
+          {/* Log New Interaction */}
           <section>
-            <h2 className="text-sm font-semibold text-text-primary mb-3">
-              Log New Interaction
-            </h2>
+            <h2 className="text-sm font-semibold text-text-primary mb-3">Log New Interaction</h2>
             <InteractionInput dealId={deal.id} onIngested={handleIngested} />
           </section>
 
           {/* Objections */}
-          <section className="pb-8">
-            <SectionHeader
-              icon={AlertTriangle}
-              title="Objections"
-              count={objections.length}
-            />
+          <section>
+            <SectionHeader icon={AlertTriangle} title="Objections" count={objections.length} />
             {objections.length > 0 ? (
               <div className="space-y-3">
                 {objections.map((o, i) => (
@@ -182,17 +163,25 @@ export default function DealPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-text-muted">
-                No objections logged yet
-              </p>
+              <p className="text-sm text-text-muted">No objections logged yet</p>
             )}
+          </section>
+
+          {/* Task Suggestions */}
+          <section>
+            <TaskSuggestions dealId={deal.id} onTasksUpdate={setTasks} />
+          </section>
+
+          {/* Task History */}
+          <section className="pb-8">
+            <TaskHistory tasks={tasks} />
           </section>
         </div>
 
-        {/* Right panel — 30% agent chat */}
+        {/* Right panel — 35% agent chat */}
         <div
           className="border-l border-white/[0.06] bg-white/[0.02] backdrop-blur-xl flex flex-col"
-          style={{ flexBasis: "30%", minWidth: "320px" }}
+          style={{ flexBasis: "35%", minWidth: "320px" }}
         >
           <AgentChat dealId={deal.id} />
         </div>

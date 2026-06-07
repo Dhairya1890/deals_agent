@@ -17,7 +17,10 @@ import { URL } from 'url';
 
 const PORT = 3001;
 const REDIRECT_URI = `http://localhost:${PORT}/oauth2callback`;
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.send',
+];
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GMAIL_CLIENT_ID,

@@ -76,6 +76,21 @@ create table patterns (
   last_updated timestamptz default now()
 );
 
+-- Tasks (autonomous agent actions)
+create table tasks (
+  id uuid primary key default gen_random_uuid(),
+  deal_id uuid references deals(id) on delete cascade,
+  title text not null,
+  description text not null,
+  type text check (type in ('email_client','email_team','email_internal','draft_document')) not null,
+  priority text check (priority in ('high','medium','low')) default 'medium',
+  status text check (status in ('suggested','selected','executing','completed','failed')) default 'suggested',
+  payload jsonb,
+  result text,
+  created_at timestamptz default now(),
+  executed_at timestamptz
+);
+
 -- Vector similarity index
 create index on memory_chunks using ivfflat (embedding vector_cosine_ops)
   with (lists = 50);

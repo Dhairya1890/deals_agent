@@ -48,6 +48,31 @@ function parseDate(dateStr) {
   }
 }
 
+export async function sendEmail({ to, subject, body }) {
+  // RFC 2822 raw message
+  const raw = [
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `Content-Type: text/plain; charset="UTF-8"`,
+    `MIME-Version: 1.0`,
+    '',
+    body,
+  ].join('\n');
+
+  const encoded = Buffer.from(raw)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+
+  const res = await gmail.users.messages.send({
+    userId: 'me',
+    requestBody: { raw: encoded },
+  });
+
+  return { messageId: res.data.id, threadId: res.data.threadId };
+}
+
 export async function fetchGmailThreads({ companyName, stakeholderEmails = [], maxResults = 20 }) {
   try {
     const q = buildQuery(companyName, stakeholderEmails);
