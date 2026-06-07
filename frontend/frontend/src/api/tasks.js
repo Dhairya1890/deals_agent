@@ -19,7 +19,11 @@ export async function selectTask(taskId, selected) {
   return res.json();
 }
 
-export async function executeTask(taskId) {
-  const res = await fetch(`${API_BASE}/tasks/${taskId}/execute`, { method: "POST" });
+export async function executeTask(taskId, toEmail) {
+  const res = await fetch(`${API_BASE}/tasks/${taskId}/execute`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ to_email: toEmail || null }),
+  });
   return res.json();
 }

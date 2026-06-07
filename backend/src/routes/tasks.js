@@ -45,7 +45,8 @@ router.patch('/:task_id', async (req, res) => {
 // POST /api/tasks/:task_id/execute — execute one approved task
 router.post('/:task_id/execute', async (req, res) => {
   try {
-    const result = await executeTask(req.params.task_id);
+    const { to_email } = req.body || {};
+    const result = await executeTask(req.params.task_id, { emailOverride: to_email });
     res.json(result);
   } catch (err) {
     console.error('Execute task error:', err.message);

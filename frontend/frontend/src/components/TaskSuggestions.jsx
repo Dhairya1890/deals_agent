@@ -6,6 +6,7 @@ import { getTasks, suggestTasks, selectTask, executeTask } from "../api/tasks";
 
 export default function TaskSuggestions({ dealId, onTasksUpdate }) {
   const [tasks, setTasksLocal] = useState([]);
+  const [emailOverrides, setEmailOverrides] = useState({});
   const [loading, setLoading] = useState(false);
   const [executing, setExecuting] = useState(false);
   const [allDone, setAllDone] = useState(false);
@@ -46,10 +47,13 @@ export default function TaskSuggestions({ dealId, onTasksUpdate }) {
     })();
   }, [dealId]);
 
-  const handleSelect = async (taskId, selected) => {
+  const handleSelect = async (taskId, selected, emailOverride) => {
     setTasks(prev => prev.map(t =>
       t.id === taskId ? { ...t, status: selected ? 'selected' : 'suggested' } : t
     ));
+    if (emailOverride !== undefined) {
+      setEmailOverrides(prev => ({ ...prev, [taskId]: emailOverride }));
+    }
     await selectTask(taskId, selected);
   };
 
@@ -66,7 +70,7 @@ export default function TaskSuggestions({ dealId, onTasksUpdate }) {
       setTasks(prev => prev.map(t => t.id === task.id ? { ...t, status: 'executing' } : t));
 
       try {
-        await executeTask(task.id);
+        await executeTask(task.id, emailOverrides[task.id] || null);
         setTasks(prev => prev.map(t =>
           t.id === task.id ? { ...t, status: 'completed' } : t
         ));

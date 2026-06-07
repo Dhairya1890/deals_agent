@@ -13,13 +13,21 @@ const PRIORITY_DOT = { high: "bg-red-400", medium: "bg-amber-400", low: "bg-zinc
 
 export default function TaskCard({ task, onSelect, disabled }) {
   const [expanded, setExpanded] = useState(false);
+  const [emailOverride, setEmailOverride] = useState(task.payload?.to_email || "");
+
   const config = TYPE_CONFIG[task.type] || TYPE_CONFIG.email_client;
   const Icon = config.icon;
-  const isSelected = task.status === "selected";
+  const isSelected  = task.status === "selected";
   const isExecuting = task.status === "executing";
   const isCompleted = task.status === "completed";
-  const isFailed = task.status === "failed";
-  const isDone = isCompleted || isFailed;
+  const isFailed    = task.status === "failed";
+  const isDone      = isCompleted || isFailed;
+
+  const needsEmail = task.type === "email_client" && !task.payload?.to_email;
+
+  const handleSelect = () => {
+    onSelect(task.id, !isSelected, emailOverride || null);
+  };
 
   return (
     <motion.div
@@ -36,10 +44,7 @@ export default function TaskCard({ task, onSelect, disabled }) {
       <div className="p-4">
         {/* Header row */}
         <div className="flex items-start gap-3">
-          {/* Type icon */}
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-            isDone ? "bg-surface-200" : "bg-surface-200"
-          }`}>
+          <div className="w-8 h-8 rounded-lg bg-surface-200 flex items-center justify-center flex-shrink-0">
             {isExecuting ? (
               <Loader2 className="w-4 h-4 animate-spin text-primary-400" />
             ) : isCompleted ? (
@@ -68,8 +73,8 @@ export default function TaskCard({ task, onSelect, disabled }) {
           {/* Select button */}
           {!isDone && !isExecuting && (
             <button
-              onClick={() => onSelect(task.id, !isSelected)}
-              disabled={disabled}
+              onClick={handleSelect}
+              disabled={disabled || (isSelected && needsEmail && !emailOverride)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
                 isSelected
                   ? "bg-primary-600 text-white border-primary-500"
@@ -86,7 +91,7 @@ export default function TaskCard({ task, onSelect, disabled }) {
           {task.description}
         </p>
 
-        {/* Payload info */}
+        {/* Recipient info */}
         {task.payload?.to_name && !isDone && (
           <div className="ml-11 mt-2 flex items-center gap-1.5 text-[11px] text-zinc-500">
             <Mail className="w-3 h-3" />
@@ -96,7 +101,37 @@ export default function TaskCard({ task, onSelect, disabled }) {
           </div>
         )}
 
-        {/* Result (completed/failed) */}
+        {/* Email input — shown when selected and no email on file */}
+        {isSelected && needsEmail && !isDone && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="ml-11 mt-2.5"
+          >
+            <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+              Recipient email required to send
+            </label>
+            <input
+              type="email"
+              value={emailOverride}
+              onChange={e => {
+                setEmailOverride(e.target.value);
+                onSelect(task.id, true, e.target.value || null);
+              }}
+              placeholder={`${task.payload?.to_name?.split(' ')[0]?.toLowerCase() || 'contact'}@company.com`}
+              className="w-full bg-surface-200 border border-border-subtle rounded-lg px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/20 transition-all"
+            />
+          </motion.div>
+        )}
+
+        {/* Known email confirmation */}
+        {task.payload?.to_email && !isDone && (
+          <div className="ml-11 mt-1 text-[10px] text-zinc-600">
+            → {task.payload.to_email}
+          </div>
+        )}
+
+        {/* Result */}
         {isDone && task.result && (
           <div className="ml-11 mt-2">
             <button

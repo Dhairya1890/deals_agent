@@ -123,7 +123,7 @@ Rules:
 - End with a single clear call-to-action
 - Return ONLY the email body — no subject line, no headers`;
 
-export async function executeTask(taskId) {
+export async function executeTask(taskId, options = {}) {
   const { data: task, error } = await supabase
     .from('tasks').select('*, deals(company, industry, stage)').eq('id', taskId).single();
   if (error || !task) throw new Error(`Task not found: ${taskId}`);
@@ -143,7 +143,7 @@ export async function executeTask(taskId) {
     if (task.type === 'draft_document') {
       result = await executeDraftDocument(task, ctx);
     } else {
-      result = await executeEmailTask(task, ctx, payload);
+      result = await executeEmailTask(task, ctx, payload, options.emailOverride);
     }
 
     await supabase.from('tasks').update({
@@ -172,11 +172,11 @@ export async function executeTask(taskId) {
   }
 }
 
-async function executeEmailTask(task, ctx, payload) {
+async function executeEmailTask(task, ctx, payload, emailOverride) {
   const { deal, stakeholders } = ctx;
 
-  // Find recipient email from stakeholders if not in payload
-  let toEmail = payload.to_email;
+  // Priority: manual override → payload → stakeholder DB lookup
+  let toEmail = emailOverride || payload.to_email;
   if (!toEmail && payload.to_name) {
     const match = stakeholders.find(s =>
       s.name?.toLowerCase().includes(payload.to_name?.toLowerCase())

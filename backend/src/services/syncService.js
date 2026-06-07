@@ -13,6 +13,16 @@ async function getAlreadySyncedIds(dealId) {
   return new Set((data || []).map(r => r.source_id));
 }
 
+// Parse "From: Name <email>" or "From: email" header from raw email content
+function parseSenderEmail(rawContent) {
+  const fromLine = rawContent?.match(/^From:\s*(.+)/im)?.[1] || '';
+  const email = fromLine.match(/<([^>]+@[^>]+)>/)?.[1]
+    || fromLine.match(/([^\s<>]+@[^\s<>]+)/)?.[1]
+    || null;
+  const name = fromLine.match(/^(.+?)\s*</)?.[1]?.trim() || null;
+  return { email, name };
+}
+
 async function saveExtractedInteraction(dealId, deal, item, extracted) {
   // Save interaction
   await supabase.from('interactions').insert({
@@ -25,12 +35,47 @@ async function saveExtractedInteraction(dealId, deal, item, extracted) {
     raw_content: item.raw_content,
   });
 
+  // Extract sender email from Gmail raw content and attach to matching stakeholder
+  let senderEmail = null;
+  let senderName = null;
+  if (item.source === 'gmail' && item.raw_content) {
+    const parsed = parseSenderEmail(item.raw_content);
+    senderEmail = parsed.email;
+    senderName = parsed.name;
+  }
+
   // Upsert stakeholders (deal_id, name is unique)
   for (const s of extracted.stakeholders) {
+    // Attach email if sender name matches this stakeholder
+    const emailForStakeholder = senderName &&
+      s.name?.toLowerCase().includes(senderName.toLowerCase())
+      ? senderEmail : null;
+
     await supabase.from('stakeholders').upsert(
-      { deal_id: dealId, ...s },
+      {
+        deal_id: dealId,
+        ...s,
+        ...(emailForStakeholder ? { email: emailForStakeholder } : {}),
+      },
       { onConflict: 'deal_id,name' }
     );
+  }
+
+  // If no stakeholder was extracted but we have a sender, update any existing stakeholder by name
+  if (senderEmail && senderName && extracted.stakeholders.length === 0) {
+    const { data: existing } = await supabase
+      .from('stakeholders')
+      .select('id, name')
+      .eq('deal_id', dealId)
+      .ilike('name', `%${senderName.split(' ')[0]}%`)
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from('stakeholders')
+        .update({ email: senderEmail })
+        .eq('id', existing.id);
+    }
   }
 
   // Insert objections and embed each one
