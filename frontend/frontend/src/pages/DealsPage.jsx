@@ -154,9 +154,14 @@ export default function DealsPage() {
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [filterStage, setFilterStage] = useState("all");
+  const [sortBy, setSortBy] = useState("date");
 
   useEffect(() => {
     loadDeals();
+    const handleOpenNewDeal = () => setModalOpen(true);
+    document.addEventListener("open-new-deal", handleOpenNewDeal);
+    return () => document.removeEventListener("open-new-deal", handleOpenNewDeal);
   }, []);
 
   const loadDeals = async () => {
@@ -197,14 +202,34 @@ export default function DealsPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-              <span className="material-symbols-outlined text-sm">filter_list</span>
-              Filter
-            </button>
-            <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-              <span className="material-symbols-outlined text-sm">sort</span>
-              Sort
-            </button>
+            <div className="relative">
+              <select
+                value={filterStage}
+                onChange={(e) => setFilterStage(e.target.value)}
+                className="appearance-none bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 pl-8 pr-8 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-primary-600"
+              >
+                <option value="all" className="bg-[#09090b]">All Stages</option>
+                <option value="prospecting" className="bg-[#09090b]">Prospecting</option>
+                <option value="discovery" className="bg-[#09090b]">Discovery</option>
+                <option value="proposal" className="bg-[#09090b]">Proposal</option>
+                <option value="negotiation" className="bg-[#09090b]">Negotiation</option>
+                <option value="won" className="bg-[#09090b]">Closed-Won</option>
+                <option value="lost" className="bg-[#09090b]">Closed-Lost</option>
+              </select>
+              <span className="material-symbols-outlined text-sm absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/80">filter_list</span>
+            </div>
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="appearance-none bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 pl-8 pr-8 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-primary-600"
+              >
+                <option value="date" className="bg-[#09090b]">Sort by Date</option>
+                <option value="value" className="bg-[#09090b]">Sort by Value</option>
+                <option value="name" className="bg-[#09090b]">Sort by Name</option>
+              </select>
+              <span className="material-symbols-outlined text-sm absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/80">sort</span>
+            </div>
           </div>
         </div>
 
@@ -214,7 +239,15 @@ export default function DealsPage() {
             <Loader2 className="w-6 h-6 animate-spin text-primary-400" />
           </div>
         ) : (
-          <DealList deals={deals} />
+          <DealList 
+            deals={[...deals]
+              .filter((d) => filterStage === "all" || d.stage === filterStage)
+              .sort((a, b) => {
+                if (sortBy === "value") return b.value_usd - a.value_usd;
+                if (sortBy === "name") return a.company.localeCompare(b.company);
+                return a.id > b.id ? -1 : 1;
+              })} 
+          />
         )}
       </div>
 

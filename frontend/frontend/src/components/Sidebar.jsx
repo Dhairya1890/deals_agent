@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { icon: "psychology", label: "Intelligence", to: "#" },
 ];
 
-export default function Sidebar({ onNewDeal }) {
+export default function Sidebar() {
   const navigate = useNavigate();
 
   return (
@@ -32,7 +32,7 @@ export default function Sidebar({ onNewDeal }) {
 
       {/* New Deal Button */}
       <button
-        onClick={onNewDeal}
+        onClick={() => document.dispatchEvent(new CustomEvent("open-new-deal"))}
         className="w-full bg-primary-600 hover:bg-secondary-500 text-white font-medium text-sm py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 mb-8 transition-colors shadow-lg shadow-primary-600/20"
         id="sidebar-new-deal"
       >
@@ -52,6 +52,12 @@ export default function Sidebar({ onNewDeal }) {
             <NavLink
               to={item.to}
               end={item.to === "/"}
+              onClick={(e) => {
+                if (item.to === "#") {
+                  e.preventDefault();
+                  alert(`${item.label} module is under development.`);
+                }
+              }}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   isActive && item.to !== "#"

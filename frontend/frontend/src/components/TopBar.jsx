@@ -38,11 +38,6 @@ export default function TopBar() {
               notifications
             </span>
           </button>
-          <button className="text-white/60 hover:text-cyan-400 transition-all active:opacity-80">
-            <span className="material-symbols-outlined text-xl">
-              account_circle
-            </span>
-          </button>
         </div>
       </div>
     </header>
