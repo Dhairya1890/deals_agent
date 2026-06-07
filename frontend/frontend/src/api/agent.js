@@ -1,7 +1,7 @@
 import { mockAgentResponses, mockBriefing } from "../mock/mockDeals";
 
 const API_BASE = "http://localhost:4000/api";
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
