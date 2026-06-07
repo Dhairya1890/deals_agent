@@ -15,7 +15,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       <div className="glass p-3 border border-white/[0.08] rounded-xl shadow-xl backdrop-blur-md">
         <p className="text-sm font-semibold text-text-primary mb-1">{label || payload[0].name}</p>
         <p className="text-sm text-primary-400">
-          Value: ${payload[0].value.toLocaleString()}
+          {payload[0].payload.isCount ? `Deals: ${payload[0].value}` : `Value: $${payload[0].value.toLocaleString()}`}
         </p>
         {payload[0].payload.count !== undefined && (
           <p className="text-xs text-text-muted">Count: {payload[0].payload.count}</p>
@@ -119,8 +119,8 @@ export default function DealsPage({ mode = "dashboard" }) {
     const won = deals.filter(d => d.stage === 'closed' && d.outcome === 'won').length;
     const lost = deals.filter(d => d.stage === 'closed' && d.outcome !== 'won').length;
     return [
-      { name: 'Won', value: won },
-      { name: 'Lost', value: lost }
+      { name: 'Won', value: won, isCount: true },
+      { name: 'Lost', value: lost, isCount: true }
     ];
   }, [deals]);
 
@@ -196,7 +196,8 @@ export default function DealsPage({ mode = "dashboard" }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="glass rounded-xl p-6 shadow-sm relative overflow-hidden group">
               <div className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-2">Total Pipeline</div>
-              <div className="text-3xl font-bold text-text-primary mb-3">{metrics.totalPipeline}</div>
+              <div className="text-3xl font-bold text-text-primary mb-1">{metrics.totalPipeline}</div>
+              <p className="text-[10px] text-text-muted mb-3">Total potential value of all active deals</p>
               <div className="text-xs text-success-600 flex items-center gap-1 font-medium">
                 <span className="material-symbols-outlined text-[14px]">trending_up</span>
                 Active Deals: {metrics.openCount}
@@ -207,7 +208,8 @@ export default function DealsPage({ mode = "dashboard" }) {
             </div>
             <div className="glass rounded-xl p-6 shadow-sm relative overflow-hidden group">
               <div className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-2">Weighted Forecast</div>
-              <div className="text-3xl font-bold text-text-primary mb-3">{metrics.weightedForecast}</div>
+              <div className="text-3xl font-bold text-text-primary mb-1">{metrics.weightedForecast}</div>
+              <p className="text-[10px] text-text-muted mb-3">Expected revenue adjusted by stage probability</p>
               <div className="text-xs text-text-secondary font-medium">
                 Confidence level: {metrics.confidence}%
               </div>
@@ -217,7 +219,8 @@ export default function DealsPage({ mode = "dashboard" }) {
             </div>
             <div className="glass rounded-xl p-6 shadow-sm relative overflow-hidden group">
               <div className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-2">Average Velocity</div>
-              <div className="text-3xl font-bold text-text-primary mb-3">{metrics.avgVelocityDays} Days</div>
+              <div className="text-3xl font-bold text-text-primary mb-1">{metrics.avgVelocityDays} Days</div>
+              <p className="text-[10px] text-text-muted mb-3">Average time deals spend before closing</p>
               <div className="text-xs text-text-muted flex items-center gap-1 font-medium">
                 Time in active stages
               </div>
@@ -227,7 +230,8 @@ export default function DealsPage({ mode = "dashboard" }) {
             </div>
             <div className="glass rounded-xl p-6 shadow-sm relative overflow-hidden group">
               <div className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-2">Win Rate</div>
-              <div className="text-3xl font-bold text-text-primary mb-3">{metrics.winRate ? `${metrics.winRate}%` : 'N/A'}</div>
+              <div className="text-3xl font-bold text-text-primary mb-1">{metrics.winRate ? `${metrics.winRate}%` : 'N/A'}</div>
+              <p className="text-[10px] text-text-muted mb-3">Percentage of closed deals successfully won</p>
               <div className="text-xs text-text-muted flex items-center gap-1 font-medium">
                 Closed Deals: {metrics.closedCount}
               </div>
@@ -247,9 +251,12 @@ export default function DealsPage({ mode = "dashboard" }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Pipeline by Stage Chart */}
             <div className="glass rounded-xl p-6 shadow-sm flex flex-col h-[350px]">
-              <div className="flex items-center gap-2 mb-6">
-                <Target className="w-4 h-4 text-primary-500" />
-                <h4 className="text-sm font-semibold text-text-primary">Pipeline by Stage</h4>
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Target className="w-4 h-4 text-primary-500" />
+                  <h4 className="text-sm font-semibold text-text-primary">Pipeline by Stage</h4>
+                </div>
+                <p className="text-xs text-text-muted">Total potential deal value distributed across current sales stages.</p>
               </div>
               <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
@@ -270,7 +277,11 @@ export default function DealsPage({ mode = "dashboard" }) {
                       dx={-10}
                     />
                     <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff05' }} />
-                    <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    <Bar 
+                      dataKey="value" 
+                      radius={[4, 4, 0, 0]} 
+                      label={{ position: 'top', fill: '#9ca3af', fontSize: 11, formatter: (val) => val > 0 ? `$${val >= 1000 ? Math.round(val/1000) + 'k' : val}` : '' }}
+                    >
                       {stageData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
@@ -282,9 +293,12 @@ export default function DealsPage({ mode = "dashboard" }) {
 
             {/* Revenue Growth Chart */}
             <div className="glass rounded-xl p-6 shadow-sm flex flex-col h-[350px]">
-              <div className="flex items-center gap-2 mb-6">
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
-                <h4 className="text-sm font-semibold text-text-primary">Revenue Growth</h4>
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="w-4 h-4 text-emerald-500" />
+                  <h4 className="text-sm font-semibold text-text-primary">Revenue Growth</h4>
+                </div>
+                <p className="text-xs text-text-muted">Projected and historical cumulative deal value over the past weeks.</p>
               </div>
               <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
@@ -311,7 +325,15 @@ export default function DealsPage({ mode = "dashboard" }) {
                       dx={-10}
                     />
                     <RechartsTooltip content={<CustomTooltip />} />
-                    <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
+                    <Area 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#8b5cf6" 
+                      strokeWidth={2} 
+                      fillOpacity={1} 
+                      fill="url(#colorValue)" 
+                      label={{ position: 'top', fill: '#9ca3af', fontSize: 11, formatter: (val) => val > 0 ? `$${val >= 1000 ? Math.round(val/1000) + 'k' : val}` : '' }}
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -319,9 +341,12 @@ export default function DealsPage({ mode = "dashboard" }) {
 
             {/* Value by Industry Chart */}
             <div className="glass rounded-xl p-6 shadow-sm flex flex-col h-[350px]">
-              <div className="flex items-center gap-2 mb-6">
-                <PieChartIcon className="w-4 h-4 text-purple-500" />
-                <h4 className="text-sm font-semibold text-text-primary">Value by Industry</h4>
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <PieChartIcon className="w-4 h-4 text-purple-500" />
+                  <h4 className="text-sm font-semibold text-text-primary">Value by Industry</h4>
+                </div>
+                <p className="text-xs text-text-muted">Breakdown of open deal value segmented by target industry.</p>
               </div>
               <div className="flex-1 w-full min-h-0 relative">
                 {industryData.length > 0 ? (
@@ -331,11 +356,13 @@ export default function DealsPage({ mode = "dashboard" }) {
                         data={industryData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
+                        innerRadius={50}
+                        outerRadius={80}
                         paddingAngle={5}
                         dataKey="value"
                         stroke="none"
+                        label={({ name, value }) => `${name}: $${value >= 1000 ? Math.round(value/1000) + 'k' : value}`}
+                        labelLine={{ stroke: '#ffffff40', strokeWidth: 1 }}
                       >
                         {industryData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -354,9 +381,12 @@ export default function DealsPage({ mode = "dashboard" }) {
 
             {/* Win/Loss Ratio Chart */}
             <div className="glass rounded-xl p-6 shadow-sm flex flex-col h-[350px]">
-              <div className="flex items-center gap-2 mb-6">
-                <Activity className="w-4 h-4 text-amber-500" />
-                <h4 className="text-sm font-semibold text-text-primary">Win / Loss Ratio</h4>
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Activity className="w-4 h-4 text-amber-500" />
+                  <h4 className="text-sm font-semibold text-text-primary">Win / Loss Ratio</h4>
+                </div>
+                <p className="text-xs text-text-muted">Comparison of successfully closed deals against lost deals.</p>
               </div>
               <div className="flex-1 w-full min-h-0 relative">
                 {(winLossData[0].value > 0 || winLossData[1].value > 0) ? (
@@ -367,9 +397,11 @@ export default function DealsPage({ mode = "dashboard" }) {
                         cx="50%"
                         cy="50%"
                         innerRadius={0}
-                        outerRadius={100}
+                        outerRadius={80}
                         dataKey="value"
                         stroke="none"
+                        label={({ name, value }) => `${name}: ${value}`}
+                        labelLine={{ stroke: '#ffffff40', strokeWidth: 1 }}
                       >
                         {winLossData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={WIN_LOSS_COLORS[index % WIN_LOSS_COLORS.length]} />
