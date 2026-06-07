@@ -25,7 +25,7 @@ function DealCard({ deal, index }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1, ease: "easeOut" }}
       onClick={() => navigate(`/deals/${deal.id}`)}
-      className="glass glass-hover gradient-border rounded-2xl p-6 cursor-pointer flex flex-col transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary-600/10 group bg-surface-200/50 backdrop-blur-xl border border-white/5"
+      className={`glass card-glow-${index % 3} rounded-2xl p-6 cursor-pointer flex flex-col transition-all duration-300 hover:scale-[1.02] hover:shadow-lg shadow-sm group`}
       id={`deal-card-${deal.id}`}
     >
       <div className="flex items-start justify-between mb-5">
@@ -34,44 +34,44 @@ function DealCard({ deal, index }) {
       </div>
 
       <div className="mb-4 flex-1">
-        <h3 className="text-xl font-bold text-white truncate group-hover:text-primary-300 transition-colors mb-1.5">
+        <h3 className="text-xl font-bold text-text-primary truncate group-hover:text-primary-600 transition-colors mb-1.5">
           {deal.company}
         </h3>
-        <p className="text-sm text-zinc-400 line-clamp-1">{deal.title}</p>
+        <p className="text-sm text-text-secondary line-clamp-1">{deal.title}</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-6">
-        <span className="inline-flex items-center px-2.5 py-1 rounded-md border border-white/10 text-xs font-medium bg-white/5 text-zinc-300">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-md border border-white/[0.08] text-xs font-medium bg-white/[0.04] text-text-secondary backdrop-blur-sm">
           {deal.industry}
         </span>
-        <span className="inline-flex items-center px-2.5 py-1 rounded-md border border-white/10 text-xs font-medium bg-white/5 text-zinc-300">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-md border border-white/[0.08] text-xs font-medium bg-white/[0.04] text-text-secondary backdrop-blur-sm">
           B2B SaaS
         </span>
       </div>
 
       {hasRisk && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex gap-3 mb-6">
-          <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-red-200/80 leading-relaxed">
+          <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <p className="text-xs text-red-400 leading-relaxed font-medium">
             No interaction in {daysSince} days. Review required.
           </p>
         </div>
       )}
 
-      <div className="flex justify-between items-end border-t border-white/10 pt-5 mb-6">
+      <div className="flex justify-between items-end border-t border-white/[0.06] pt-5 mb-6">
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">
+          <div className="text-[10px] text-text-muted uppercase tracking-widest font-semibold mb-1.5">
             Deal Value
           </div>
-          <div className="text-xl font-bold text-white">
+          <div className="text-xl font-bold text-text-primary">
             {formatCurrency(deal.value_usd)}
           </div>
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">
+          <div className="text-[10px] text-text-muted uppercase tracking-widest font-semibold mb-1.5">
             {isWon ? "Duration" : "Last Interaction"}
           </div>
-          <div className="text-sm font-medium text-zinc-300">
+          <div className="text-sm font-medium text-text-secondary">
             {isWon ? "3 Years" : formatDate(lastInteractionDate)}
           </div>
         </div>
@@ -80,15 +80,15 @@ function DealCard({ deal, index }) {
       <div className="mt-auto">
         {isWon ? (
           <div className="grid grid-cols-2 gap-3">
-            <button className="w-full py-2.5 bg-primary-600 hover:bg-primary-500 text-white text-xs font-semibold rounded-lg transition-colors">
+            <button className="w-full py-2.5 bg-primary-600/80 hover:bg-primary-600 backdrop-blur-sm text-white text-xs font-semibold rounded-lg transition-all shadow-lg shadow-primary-600/20 border border-primary-500/30">
               Generate Contract
             </button>
-            <button className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold rounded-lg transition-colors">
+            <button className="w-full py-2.5 glass glass-hover text-text-primary text-xs font-semibold rounded-lg transition-all">
               Project Handoff
             </button>
           </div>
         ) : (
-          <button className="w-full py-2.5 bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-lg shadow-primary-600/20">
+          <button className="w-full py-2.5 bg-primary-600/80 hover:bg-primary-600 backdrop-blur-sm text-white text-sm font-semibold rounded-lg transition-all shadow-lg shadow-primary-600/20 border border-primary-500/30">
             {deal.stage === 'proposal' ? 'Send Follow-up' : 'View Intelligence Report'}
           </button>
         )}

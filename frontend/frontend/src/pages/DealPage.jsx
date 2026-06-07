@@ -14,9 +14,9 @@ function SectionHeader({ icon: Icon, title, count }) {
   return (
     <div className="flex items-center gap-2 mb-4">
       <Icon className="w-4 h-4 text-primary-400" />
-      <h2 className="text-sm font-semibold text-zinc-200">{title}</h2>
+      <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
       {count !== undefined && (
-        <span className="text-[10px] text-zinc-500 bg-surface-200 px-1.5 py-0.5 rounded-full">
+        <span className="text-[10px] text-text-secondary bg-white/10 px-1.5 py-0.5 rounded-full">
           {count}
         </span>
       )}
@@ -99,7 +99,7 @@ export default function DealPage() {
 
   if (!deal) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-zinc-400">
+      <div className="flex items-center justify-center min-h-screen text-text-muted">
         Deal not found
       </div>
     );
@@ -114,7 +114,7 @@ export default function DealPage() {
       className="relative z-10 min-h-screen"
     >
       {/* Background gradient */}
-      <div className="fixed top-0 right-0 w-[600px] h-[400px] bg-primary-600/4 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed top-0 right-0 w-[600px] h-[400px] bg-primary-900/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="flex h-screen">
         {/* Left panel — 70% */}
@@ -144,7 +144,7 @@ export default function DealPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-text-muted">
                 No stakeholders identified yet
               </p>
             )}
@@ -162,7 +162,7 @@ export default function DealPage() {
 
           {/* Interaction Input */}
           <section>
-            <h2 className="text-sm font-semibold text-zinc-200 mb-3">
+            <h2 className="text-sm font-semibold text-text-primary mb-3">
               Log New Interaction
             </h2>
             <InteractionInput dealId={deal.id} onIngested={handleIngested} />
@@ -182,7 +182,7 @@ export default function DealPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-text-muted">
                 No objections logged yet
               </p>
             )}
@@ -191,7 +191,7 @@ export default function DealPage() {
 
         {/* Right panel — 30% agent chat */}
         <div
-          className="border-l border-border-subtle bg-bg-elevated flex flex-col"
+          className="border-l border-white/[0.06] bg-white/[0.02] backdrop-blur-xl flex flex-col"
           style={{ flexBasis: "30%", minWidth: "320px" }}
         >
           <AgentChat dealId={deal.id} />

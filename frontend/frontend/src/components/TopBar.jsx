@@ -4,7 +4,6 @@ import logo from "../assets/logo.png";
 const NAV_ITEMS = [
   { icon: "dashboard", label: "Dashboard", to: "/" },
   { icon: "query_stats", label: "Pipeline", to: "/pipeline" },
-  { icon: "forum", label: "Conversations", to: "#" },
   { icon: "psychology", label: "Intelligence", to: "#" },
 ];
 
@@ -12,16 +11,16 @@ export default function TopBar() {
   const location = useLocation();
 
   return (
-    <header className="grid grid-cols-[1fr_auto_1fr] items-center h-16 px-8 sticky top-0 z-40 bg-bg/80 backdrop-blur-md border-b border-white/5">
+    <header className="grid grid-cols-[1fr_auto_1fr] items-center h-16 px-8 sticky top-0 z-40 bg-[#030712]/40 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/10">
       {/* Left: Logo & Brand */}
       <div className="flex items-center gap-3 justify-self-start">
         <img
           alt="DealClaw Logo"
-          className="w-10 h-10 rounded mix-blend-screen"
+          className="w-12 h-12 object-contain"
           src={logo}
         />
         <div>
-          <h1 className="font-sans text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-500">
+          <h1 className="font-sans text-xl font-black text-primary-400">
             DealClaw
           </h1>
         </div>
@@ -43,8 +42,8 @@ export default function TopBar() {
             className={({ isActive }) =>
               `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 isActive && item.to !== "#"
-                  ? "text-primary-400 bg-primary-600/10"
-                  : "text-white/60 hover:text-white/90 hover:bg-white/5"
+                  ? "text-primary-300 bg-primary-500/15 backdrop-blur-sm font-semibold border border-primary-500/20"
+                  : "text-text-secondary hover:text-text-primary hover:bg-white/[0.06] border border-transparent"
               }`
             }
           >
@@ -57,11 +56,11 @@ export default function TopBar() {
       <div className="flex items-center gap-6 justify-self-end">
         {/* Search */}
         <div className="relative hidden lg:block">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-lg">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-lg">
             search
           </span>
           <input
-            className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors w-56 placeholder:text-white/40"
+            className="bg-white/[0.04] border border-white/[0.08] rounded-full py-1.5 pl-10 pr-4 text-sm text-text-primary focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/30 focus:bg-white/[0.06] transition-all w-56 placeholder:text-text-muted backdrop-blur-sm"
             placeholder="Search deals..."
             type="text"
             id="topbar-search"
@@ -71,7 +70,7 @@ export default function TopBar() {
         {/* Import from CRM Button */}
         <button
           onClick={() => document.dispatchEvent(new CustomEvent("open-new-deal"))}
-          className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors shadow-lg shadow-primary-600/20"
+          className="bg-primary-600/80 hover:bg-primary-600 backdrop-blur-sm text-white px-4 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shadow-lg shadow-primary-600/20 border border-primary-500/30"
         >
           <span className="material-symbols-outlined text-[18px] font-bold">upload</span>
           Import from CRM

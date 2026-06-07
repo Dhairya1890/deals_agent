@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 const STAGE_COLORS = {
-  prospecting: "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
+  prospecting: "bg-gray-500/20 text-gray-300 border-gray-500/30",
   discovery: "bg-blue-500/20 text-blue-300 border-blue-500/30",
   proposal: "bg-purple-500/20 text-purple-300 border-purple-500/30",
   negotiation: "bg-amber-500/20 text-amber-300 border-amber-500/30",
@@ -112,7 +112,7 @@ export default function DealHealthBadge({ deal }) {
       <span
         className={`w-2.5 h-2.5 rounded-full ${color} ${pulse}`}
       />
-      <span className="text-xs text-zinc-400">{label}</span>
+      <span className="text-xs text-text-muted font-medium">{label}</span>
     </div>
   );
 }
