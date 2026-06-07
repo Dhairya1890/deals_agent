@@ -3,8 +3,7 @@ import logo from "../assets/logo.png";
 
 const NAV_ITEMS = [
   { icon: "dashboard", label: "Dashboard", to: "/" },
-  { icon: "query_stats", label: "Pipeline", to: "/pipeline" },
-  { icon: "psychology", label: "Intelligence", to: "#" },
+  { icon: "query_stats", label: "Leads", to: "/pipeline" },
 ];
 
 export default function TopBar() {

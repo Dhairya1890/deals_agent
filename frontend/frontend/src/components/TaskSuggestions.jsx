@@ -35,15 +35,15 @@ export default function TaskSuggestions({ dealId, onTasksUpdate }) {
   };
 
   useEffect(() => {
-    loadTasks().then(async () => {
-      // Auto-suggest if no tasks exist yet for this deal
+    (async () => {
       const data = await getTasks(dealId);
-      if ((data.tasks || []).filter(t => ['suggested','selected'].includes(t.status)).length === 0) {
+      const existing = (data.tasks || []).filter(t => ['suggested','selected'].includes(t.status));
+      if (existing.length === 0) {
         handleSuggest();
       } else {
         setTasks(data.tasks || []);
       }
-    });
+    })();
   }, [dealId]);
 
   const handleSelect = async (taskId, selected) => {
