@@ -24,7 +24,8 @@ create table stakeholders (
   seniority text check (seniority in ('c_suite','vp','director','manager','ic')),
   sentiment text check (sentiment in ('positive','neutral','skeptical','blocking')),
   influence_score float default 0.5,
-  primary_concern text
+  primary_concern text,
+  unique (deal_id, name)
 );
 
 -- Interactions
@@ -35,7 +36,9 @@ create table interactions (
   raw_content text,
   summary text,
   participants text[],
-  occurred_at timestamptz default now()
+  occurred_at timestamptz default now(),
+  source text check (source in ('gmail','slack','hubspot','manual')),
+  source_id text unique
 );
 
 -- Objections
@@ -56,7 +59,7 @@ create table memory_chunks (
   source_id uuid not null,
   source_type text check (source_type in ('objection','interaction','deal_summary')),
   content text not null,
-  embedding vector(1536),
+  embedding vector(768),
   tags text[],
   deal_outcome text,
   created_at timestamptz default now()
@@ -79,7 +82,7 @@ create index on memory_chunks using ivfflat (embedding vector_cosine_ops)
 
 -- Similarity search function
 create or replace function match_memory_chunks (
-  query_embedding vector(1536),
+  query_embedding vector(768),
   match_threshold float,
   match_count int
 )
