@@ -60,6 +60,13 @@ export async function createDeal(data) {
   return res.json();
 }
 
+export async function importDeals(file) {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${API_BASE}/import`, { method: "POST", body: form });
+  return res.json();
+}
+
 export async function syncDeal(dealId) {
   const res = await fetch(`${API_BASE}/sync/${dealId}`, { method: "POST" });
   return res.json();

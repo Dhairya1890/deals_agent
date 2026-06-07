@@ -68,13 +68,13 @@ export default function TopBar() {
           />
         </div>
         
-        {/* New Deal Button */}
+        {/* Import from CRM Button */}
         <button
           onClick={() => document.dispatchEvent(new CustomEvent("open-new-deal"))}
           className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors shadow-lg shadow-primary-600/20"
         >
-          <span className="material-symbols-outlined text-[18px] font-bold">add</span>
-          New Deal
+          <span className="material-symbols-outlined text-[18px] font-bold">upload</span>
+          Import from CRM
         </button>
 
       </div>

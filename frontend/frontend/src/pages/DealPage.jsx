@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Users, MessageCircle, AlertTriangle, Loader2 } from "lucide-react";
-import { getDeal } from "../api/deals";
+import { Users, MessageCircle, AlertTriangle, Loader2, RefreshCw } from "lucide-react";
+import { getDeal, syncDeal } from "../api/deals";
 import DealDetail from "../components/DealDetail";
 import StakeholderCard from "../components/StakeholderCard";
 import InteractionFeed from "../components/InteractionFeed";
@@ -31,6 +31,7 @@ export default function DealPage() {
   const [interactions, setInteractions] = useState([]);
   const [objections, setObjections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     loadDeal();
@@ -44,10 +45,31 @@ export default function DealPage() {
       setStakeholders(data.stakeholders || []);
       setInteractions(data.interactions || []);
       setObjections(data.objections || []);
+
+      // Auto-sync Gmail + Slack in background after deal loads
+      autoSync(id);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const autoSync = async (dealId) => {
+    setSyncing(true);
+    try {
+      const result = await syncDeal(dealId);
+      // If new items came in, reload deal data silently
+      if (result.synced > 0) {
+        const data = await getDeal(dealId);
+        setStakeholders(data.stakeholders || []);
+        setInteractions(data.interactions || []);
+        setObjections(data.objections || []);
+      }
+    } catch (err) {
+      console.error("Auto-sync failed:", err);
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -99,6 +121,14 @@ export default function DealPage() {
         <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ flexBasis: "70%" }}>
           {/* Deal header */}
           <DealDetail deal={deal} />
+
+          {/* Auto-sync indicator */}
+          {syncing && (
+            <div className="flex items-center gap-2 text-xs text-zinc-500">
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              Syncing emails and messages...
+            </div>
+          )}
 
           {/* Stakeholders */}
           <section>

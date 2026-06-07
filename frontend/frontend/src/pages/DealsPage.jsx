@@ -1,154 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, Loader2 } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import DealList from "../components/DealList";
-import { getDeals, createDeal } from "../api/deals";
+import { getDeals } from "../api/deals";
+import ImportCRMModal from "../components/ImportCRMModal";
 
-function NewDealModal({ isOpen, onClose, onCreated }) {
-  const [form, setForm] = useState({
-    title: "",
-    company: "",
-    value_usd: "",
-    industry: "",
-    stage: "prospecting",
-  });
-  const [saving, setSaving] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.company || !form.title) return;
-    setSaving(true);
-    try {
-      const data = await createDeal({
-        ...form,
-        value_usd: Number(form.value_usd) || 0,
-      });
-      onCreated(data.deal);
-      onClose();
-      setForm({
-        title: "",
-        company: "",
-        value_usd: "",
-        industry: "",
-        stage: "prospecting",
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      >
-        <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-          onClick={onClose}
-        />
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="relative glass-strong rounded-2xl p-6 w-full max-w-md gradient-border"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-white">New Deal</h2>
-            <button
-              onClick={onClose}
-              className="text-zinc-500 hover:text-zinc-300 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
-                Deal Title
-              </label>
-              <input
-                type="text"
-                value={form.title}
-                onChange={(e) =>
-                  setForm({ ...form, title: e.target.value })
-                }
-                placeholder="e.g. Acme Corp Enterprise"
-                className="w-full bg-surface-100 border border-border-subtle rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-primary-600/50 focus:ring-1 focus:ring-primary-600/20 transition-all"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
-                Company
-              </label>
-              <input
-                type="text"
-                value={form.company}
-                onChange={(e) =>
-                  setForm({ ...form, company: e.target.value })
-                }
-                placeholder="e.g. Acme Corp"
-                className="w-full bg-surface-100 border border-border-subtle rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-primary-600/50 focus:ring-1 focus:ring-primary-600/20 transition-all"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
-                  Value (USD)
-                </label>
-                <input
-                  type="number"
-                  value={form.value_usd}
-                  onChange={(e) =>
-                    setForm({ ...form, value_usd: e.target.value })
-                  }
-                  placeholder="120000"
-                  className="w-full bg-surface-100 border border-border-subtle rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-primary-600/50 focus:ring-1 focus:ring-primary-600/20 transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
-                  Industry
-                </label>
-                <input
-                  type="text"
-                  value={form.industry}
-                  onChange={(e) =>
-                    setForm({ ...form, industry: e.target.value })
-                  }
-                  placeholder="SaaS"
-                  className="w-full bg-surface-100 border border-border-subtle rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-primary-600/50 focus:ring-1 focus:ring-primary-600/20 transition-all"
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={saving || !form.company || !form.title}
-              className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-primary-600/20"
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Plus className="w-4 h-4" />
-              )}
-              Create Deal
-            </button>
-          </form>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  );
-}
 
 export default function DealsPage({ mode = "dashboard" }) {
   const [deals, setDeals] = useState([]);
@@ -176,8 +32,8 @@ export default function DealsPage({ mode = "dashboard" }) {
     }
   };
 
-  const handleDealCreated = (deal) => {
-    setDeals((prev) => [...prev, deal]);
+  const handleImported = (newDeals) => {
+    setDeals((prev) => [...prev, ...newDeals]);
   };
 
   return (
@@ -305,10 +161,10 @@ export default function DealsPage({ mode = "dashboard" }) {
         )}
       </div>
 
-      <NewDealModal
+      <ImportCRMModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onCreated={handleDealCreated}
+        onImported={handleImported}
       />
     </motion.div>
   );

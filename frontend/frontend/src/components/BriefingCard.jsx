@@ -91,21 +91,20 @@ export default function BriefingCard({ briefing, onClose }) {
             </p>
           </div>
           <div className="space-y-1.5">
-            {briefing.open_objections.map((obj) => (
-              <div
-                key={obj.id}
-                className="flex items-start gap-2 text-xs text-zinc-400"
-              >
-                <span
-                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium capitalize ${
-                    CATEGORY_COLORS[obj.category] || CATEGORY_COLORS.technical
-                  }`}
-                >
-                  {obj.category}
-                </span>
-                <span className="leading-relaxed">{obj.text}</span>
-              </div>
-            ))}
+            {briefing.open_objections.map((obj, i) => {
+              const text = typeof obj === "string" ? obj : obj.text;
+              const category = typeof obj === "string" ? null : obj.category;
+              return (
+                <div key={i} className="flex items-start gap-2 text-xs text-zinc-400">
+                  {category && (
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium capitalize ${CATEGORY_COLORS[category] || CATEGORY_COLORS.technical}`}>
+                      {category}
+                    </span>
+                  )}
+                  <span className="leading-relaxed">{text}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -131,7 +130,7 @@ export default function BriefingCard({ briefing, onClose }) {
                 <span className="text-zinc-500">{s.role}</span>
                 <span className="text-zinc-500">·</span>
                 <span className="text-zinc-400 italic">
-                  {s.primary_concern}
+                  {s.concern || s.primary_concern}
                 </span>
               </div>
             ))}
