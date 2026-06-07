@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 const NAV_ITEMS = [
@@ -8,7 +8,7 @@ const NAV_ITEMS = [
 ];
 
 export default function TopBar() {
-  const location = useLocation();
+
 
   return (
     <header className="grid grid-cols-[1fr_auto_1fr] items-center h-16 px-8 sticky top-0 z-40 bg-[#030712]/40 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/10">

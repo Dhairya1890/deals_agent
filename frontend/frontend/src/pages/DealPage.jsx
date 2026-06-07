@@ -36,26 +36,6 @@ export default function DealPage() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
-  useEffect(() => {
-    loadDeal();
-  }, [id]);
-
-  const loadDeal = async () => {
-    setLoading(true);
-    try {
-      const data = await getDeal(id);
-      setDeal(data.deal);
-      setStakeholders(data.stakeholders || []);
-      setInteractions(data.interactions || []);
-      setObjections(data.objections || []);
-      autoSync(id);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const autoSync = async (dealId) => {
     setSyncing(true);
     try {
@@ -72,6 +52,30 @@ export default function DealPage() {
       setSyncing(false);
     }
   };
+
+  const loadDeal = async () => {
+    setLoading(true);
+    try {
+      const data = await getDeal(id);
+      setDeal(data.deal);
+      setStakeholders(data.stakeholders || []);
+      setInteractions(data.interactions || []);
+      setObjections(data.objections || []);
+
+      autoSync(id);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDeal();
+  }, [id]);
+
+
 
   const handleIngested = (data) => {
     if (data.interaction) {

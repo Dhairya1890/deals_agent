@@ -61,7 +61,7 @@ export default function AgentChat({ dealId }) {
         retrieved_deals: response.retrieved_deals,
       };
       setMessages((prev) => [...prev, agentMessage]);
-    } catch (err) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
