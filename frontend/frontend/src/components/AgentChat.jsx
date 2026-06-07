@@ -186,17 +186,15 @@ export default function AgentChat({ dealId }) {
                       key={j}
                       className="bg-surface-100 rounded-lg p-2.5 text-xs"
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-zinc-200">
-                          {deal.company}
-                        </span>
+                      <div className="flex items-center gap-2 mb-1.5">
                         <span
                           className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
-                            OUTCOME_BADGE[deal.outcome] ||
-                            "bg-zinc-500/20 text-zinc-300"
+                            deal.outcome === "won"
+                              ? "bg-emerald-500/20 text-emerald-300"
+                              : "bg-red-500/20 text-red-300"
                           }`}
                         >
-                          {deal.outcome === "closed-won" ? (
+                          {deal.outcome === "won" ? (
                             <span className="flex items-center gap-0.5">
                               <CheckCircle2 className="w-2.5 h-2.5" /> Won
                             </span>
@@ -206,17 +204,15 @@ export default function AgentChat({ dealId }) {
                             </span>
                           )}
                         </span>
-                        {deal.closed_at && (
-                          <span className="text-zinc-500">
-                            {deal.closed_at}
+                        {deal.tags?.length > 0 && (
+                          <span className="text-zinc-500 capitalize">
+                            {deal.tags[0]}
                           </span>
                         )}
                       </div>
-                      {deal.response_used && (
-                        <p className="text-zinc-400 italic">
-                          Response: "{deal.response_used}"
-                        </p>
-                      )}
+                      <p className="text-zinc-400 leading-relaxed line-clamp-3">
+                        {deal.content}
+                      </p>
                     </div>
                   ))}
                 </div>

@@ -1,7 +1,7 @@
 import { mockDeals, mockExtractionResult } from "../mock/mockDeals";
 
 const API_BASE = "http://localhost:4000/api";
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -57,6 +57,11 @@ export async function createDeal(data) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+  return res.json();
+}
+
+export async function syncDeal(dealId) {
+  const res = await fetch(`${API_BASE}/sync/${dealId}`, { method: "POST" });
   return res.json();
 }
 
