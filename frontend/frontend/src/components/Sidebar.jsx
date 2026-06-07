@@ -2,8 +2,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 const NAV_ITEMS = [
-  { icon: "dashboard", label: "Dashboard", to: "#" },
-  { icon: "query_stats", label: "Pipeline", to: "/", filled: true },
+  { icon: "dashboard", label: "Dashboard", to: "/" },
+  { icon: "query_stats", label: "Pipeline", to: "/pipeline" },
   { icon: "forum", label: "Conversations", to: "#" },
   { icon: "psychology", label: "Intelligence", to: "#" },
 ];

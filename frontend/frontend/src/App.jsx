@@ -21,7 +21,8 @@ export default function App() {
 
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<DealsPage />} />
+            <Route path="/" element={<DealsPage mode="dashboard" />} />
+            <Route path="/pipeline" element={<DealsPage mode="pipeline" />} />
             <Route path="/deals/:id" element={<DealPage />} />
           </Routes>
         </AnimatePresence>
