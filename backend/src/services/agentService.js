@@ -92,6 +92,8 @@ export async function agentChat({ deal_id, message, history = [] }) {
     similarChunks = await searchSimilar(message, 2);
   }
 
+  const isNewDeal = ctx.interactions.length <= 1 && ctx.objections.length === 0;
+
   const systemPrompt = `You are a Deal Intelligence Agent — an expert AI sales advisor with access to memory of past deals.
 
 Your job is to help sales reps make better decisions during active deals by:
@@ -103,7 +105,8 @@ Your job is to help sales reps make better decisions during active deals by:
 Always ground your recommendations in the retrieved past deal data when available.
 When you reference a past deal pattern, say so explicitly: "In past deals where this came up..."
 Keep responses concise — 150-250 words. Use bullet points for recommendations.
-
+${isNewDeal ? `
+This is a new lead with no interaction history yet. Based on what is known (company, contact, interest, source), give the rep a concrete first-contact strategy: what to research, what to lead with, and what questions to ask in the first call. Reference relevant past deal patterns by industry or service type where applicable.` : ''}
 ${formatDealContext(ctx)}
 
 ${formatRetrievedMemory(similarChunks, pattern)}`;

@@ -5,6 +5,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdfParse = require('pdf-parse');
 import supabase from '../db/supabase.js';
+import { embedAndStore } from './embedding.js';
 
 // ─── Stage mapping ────────────────────────────────────────────────────────────
 
@@ -61,6 +62,9 @@ function mapRowToDeal(row) {
   const outcome = OUTCOME_MAP[statusKey] || null;
   const value   = valueRaw ? parseInt(String(valueRaw).replace(/[^0-9]/g, ''), 10) || 0 : 0;
 
+  const source = findField(row, ['lead source', 'source', 'channel', 'utm_source']);
+  const priority = findField(row, ['priority', 'lead priority']);
+
   return {
     deal: {
       title:     title || `${company} Deal`,
@@ -77,10 +81,11 @@ function mapRowToDeal(row) {
       seniority:       guessSeniority(jobTitle),
       sentiment:       'neutral',
       influence_score: 0.7,
-      primary_concern: null,
+      primary_concern: title ? `Interested in ${title}` : null,
       email:           email || null,
       phone:           phone || null,
     } : null,
+    meta: { source, priority, title, statusRaw },
   };
 }
 
@@ -169,7 +174,7 @@ export async function importFromFile(buffer, mimetype, filename) {
   const mapped = rows.map(mapRowToDeal).filter(Boolean);
   const results = [];
 
-  for (const { deal, stakeholder } of mapped) {
+  for (const { deal, stakeholder, meta } of mapped) {
     // Check for duplicate company
     const { data: existing } = await supabase
       .from('deals')
@@ -199,6 +204,40 @@ export async function importFromFile(buffer, mimetype, filename) {
         deal_id: newDeal.id,
         ...stakeholder,
       });
+    }
+
+    // Bootstrap interaction so the agent has immediate context
+    const parts = [
+      `Lead imported from CRM.`,
+      stakeholder?.name ? `Contact: ${stakeholder.name}${stakeholder.role ? ` (${stakeholder.role})` : ''}.` : null,
+      meta.title ? `Interested in: ${meta.title}.` : null,
+      meta.source ? `Lead source: ${meta.source}.` : null,
+      meta.priority ? `Priority: ${meta.priority}.` : null,
+      meta.statusRaw ? `CRM status: ${meta.statusRaw}.` : null,
+      stakeholder?.email ? `Email: ${stakeholder.email}.` : null,
+    ].filter(Boolean).join(' ');
+
+    const { data: interaction } = await supabase
+      .from('interactions')
+      .insert({
+        deal_id:     newDeal.id,
+        type:        'note',
+        summary:     parts,
+        occurred_at: new Date().toISOString().slice(0, 10),
+        source:      'manual',
+      })
+      .select('id')
+      .single();
+
+    // Embed the bootstrap context into memory so agent retrieval works
+    if (interaction?.id) {
+      await embedAndStore({
+        source_id:   interaction.id,
+        source_type: 'interaction',
+        content:     `Company: ${deal.company}. Industry: ${deal.industry || 'unknown'}. ${parts}`,
+        tags:        ['import', deal.industry, deal.stage].filter(Boolean),
+        deal_outcome: null,
+      }).catch(() => {}); // non-blocking
     }
 
     results.push({ imported: true, deal: newDeal });
