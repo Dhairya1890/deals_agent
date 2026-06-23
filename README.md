@@ -8,14 +8,14 @@ The system ingests sales interaction data (calls, emails, meeting notes), extrac
 
 ## Architecture & Tech Stack
 
-### 💻 Frontend
+### Frontend
 - **Framework:** React 19 + Vite
 - **Styling:** Tailwind CSS v4 + Framer Motion (for animations)
 - **Routing:** React Router v7
 - **Charts:** Recharts
 - **Icons:** Lucide React
 
-### ⚙️ Backend
+### Backend
 - **Framework:** Node.js + Express.js
 - **Database:** Supabase (PostgreSQL with `pgvector` for similarity search)
 - **ORM / Client:** `@supabase/supabase-js`
@@ -119,7 +119,7 @@ deals_agent/
 
 ---
 
-## 📖 How Data Flows
+## How Data Flows
 
 1. **Interaction Logging**: The frontend POSTs an email/call transcript to `/api/interactions`.
 2. **Extraction**: The backend passes the raw text to Claude (`services/extraction.js`) which returns a structured JSON mapping of stakeholders and objections.
@@ -129,6 +129,6 @@ deals_agent/
 
 ---
 
-## 🛡️ License
+## License
 
 Private and Confidential. All rights reserved.
