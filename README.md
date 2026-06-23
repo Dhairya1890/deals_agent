@@ -1,4 +1,4 @@
-# Deal Intelligence Agent 🚀
+# Deal Intelligence Agent
 
 Deal Intelligence Agent is a full-stack, AI-powered application designed to act as an expert sales advisor. It helps sales representatives make data-driven decisions during active deals by surfacing patterns from past won/lost deals, providing specific recommendations, and identifying risks early based on stakeholder signals.
 
@@ -6,7 +6,7 @@ The system ingests sales interaction data (calls, emails, meeting notes), extrac
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## Architecture & Tech Stack
 
 ### 💻 Frontend
 - **Framework:** React 19 + Vite
@@ -20,14 +20,14 @@ The system ingests sales interaction data (calls, emails, meeting notes), extrac
 - **Database:** Supabase (PostgreSQL with `pgvector` for similarity search)
 - **ORM / Client:** `@supabase/supabase-js`
 
-### 🧠 AI & Intelligence Layer
+### AI & Intelligence Layer
 - **LLM Engine:** Claude (`claude-sonnet-4-20250514`) via Anthropic API (handles structured extraction, briefings, and agent chat)
 - **Embeddings:** OpenAI (`text-embedding-3-small`, 1536 dims) for vectorizing deal context and objections
 - **Memory Retrieval:** Cosine similarity search (`pgvector`) + pattern matching
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 1. **AI-Powered Interaction Extraction**
    Raw text from sales interactions is parsed by Claude to extract structured data: summaries, stakeholders (and their sentiment), objections, and commitments.
@@ -40,7 +40,7 @@ The system ingests sales interaction data (calls, emails, meeting notes), extrac
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 deals_agent/
@@ -62,7 +62,7 @@ deals_agent/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Prerequisites
 - **Node.js** (v20 or higher recommended)
